@@ -115,3 +115,5 @@ models. Only public models, measured in the open.
 Maintained alongside [RK Edge Doctor](https://github.com/anguoyang/rk-edge-doctor)
 and the open-source notes at https://site-ai-gateway.com — if rk-bench saved
 you a day of guessing, a star helps other Rockchip developers find it.
+
+Ecosystem list: [awesome-rockchip](https://github.com/anguoyang/awesome-rockchip) — a curated, actively maintained list of Rockchip boards, tools and projects.
