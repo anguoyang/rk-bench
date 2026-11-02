@@ -37,8 +37,14 @@ Raw data (the single source of truth): [data/leaderboard.json](data/leaderboard.
   The board is busy (load ≈ 16); that is exactly why latency uses the
   runtime's hardware counters instead of wall-clock time.
 - Protocol: a priming cycle first (one sacrificial load + 5 runs in a
-  separate process), then warmup 10 + 50 measured runs, zero inputs shaped
-  by the model's own input attributes, default NPU core assignment.
+  separate process), then **3 independent sessions** (separate processes),
+  each warmup 10 + 50 measured runs; the published p50/p95 are the medians
+  across sessions and the verdict is the worst session's. Zero inputs
+  shaped by the model's own input attributes, default NPU core assignment.
+  Single sessions on a busy board can sit ~15% off the sustained state —
+  one YOLOv5s session measured 43.2 ms against 37.8–38.5 ms in three
+  repeat processes — which is why no leaderboard number here ever comes
+  from a single session.
   The priming step exists because of a measured quirk: on RK3588 with the
   `rknpu_ondemand` governor, the first RKNN process after an idle gap is
   ~15% slower across *all* runs (YOLO11n: 51.4 ms vs 44.0 ms primed), and

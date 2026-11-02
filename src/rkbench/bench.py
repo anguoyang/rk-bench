@@ -22,11 +22,72 @@ from .perf_parse import judge, latency_stats, parse_perf_detail
 from .rknn_runtime import ModelLoadError, RknnRuntime, RuntimeUnavailable
 
 PROTOCOL = {"warmup": 10, "runs": 50, "timer": "PERF_RUN",
-            "rss_cycles": 3,
+            "rss_cycles": 3, "sessions": 3,
+            "aggregation": "median of independent sessions, each in its "
+                           "own process (single sessions on a busy board "
+                           "can sit ~15% off the sustained state)",
             "priming": "one sacrificial load+5-run cycle in a separate "
                        "process before measuring (first-context effect: "
                        "the first RKNN process after idle measures ~15% "
                        "slower on RK3588/rknpu_ondemand, even after warmup)"}
+
+_VERDICT_RANK = {"NPU_ONLY": 0, "MIXED": 1, "CPU_HEAVY": 2, "UNKNOWN": 3}
+
+
+def aggregate_reports(reports: list, rss_delta_mb: Optional[float] = None) -> dict:
+    """Aggregate independent single-session reports into one entry report.
+
+    Latency p50/p95 and fallback share are medians across sessions; the
+    fallback/RW detail comes from the median-p50 (representative) session;
+    the verdict is the worst session's, so one bad session cannot be
+    averaged away. Session p50s are recorded in the notes for audit.
+    """
+    if not reports:
+        raise ValueError("no session reports to aggregate")
+    ordered = sorted(reports,
+                     key=lambda r: (r["latency_ms"]["p50"] is None,
+                                    r["latency_ms"]["p50"] or 0))
+    representative = ordered[len(ordered) // 2]
+    import copy
+    result = copy.deepcopy(representative)
+
+    def median_of(key_path):
+        values = []
+        for report in reports:
+            value = report
+            for key in key_path:
+                value = (value or {}).get(key)
+            if value is not None:
+                values.append(value)
+        return float(statistics.median(values)) if values else None
+
+    for stat in ("p50", "p95", "mean"):
+        value = median_of(["latency_ms", stat])
+        result["latency_ms"][stat] = round(value, 3) if value is not None else None
+    mins = [r["latency_ms"]["min"] for r in reports if r["latency_ms"]["min"] is not None]
+    maxs = [r["latency_ms"]["max"] for r in reports if r["latency_ms"]["max"] is not None]
+    result["latency_ms"]["min"] = min(mins) if mins else None
+    result["latency_ms"]["max"] = max(maxs) if maxs else None
+    if result["latency_ms"]["p50"]:
+        result["fps_p50"] = round(1000.0 / result["latency_ms"]["p50"], 1)
+    share = median_of(["fallback_share_pct"])
+    result["fallback_share_pct"] = round(share, 3) if share is not None else None
+    worst = max(reports, key=lambda r: _VERDICT_RANK.get(r["verdict"], 3))
+    result["verdict"] = worst["verdict"]
+    if rss_delta_mb is not None:
+        result["memory"]["rss_delta_mb"] = rss_delta_mb
+    result["protocol"] = dict(reports[0]["protocol"])
+    result["protocol"]["sessions"] = len(reports)
+    result["protocol"]["aggregation"] = PROTOCOL["aggregation"]
+    session_p50s = [r["latency_ms"]["p50"] for r in reports]
+    result["notes"] = list(representative["notes"]) + [
+        "aggregated from %d independent sessions; session p50 (ms): %s"
+        % (len(reports), session_p50s)]
+    if len({r["verdict"] for r in reports}) > 1:
+        result["notes"].append(
+            "session verdicts differed: %s; the worst is reported"
+            % [r["verdict"] for r in reports])
+    return result
 THRESHOLDS = {"cpu_heavy_pct": 20.0, "npu_only_fallback_pct": 1.0,
               "single_op_us": 100}
 
@@ -255,7 +316,21 @@ def prime_child(path: Path) -> int:
     return 0
 
 
-def run_child(argv: list) -> int:
+def spawn_child(argv: list) -> bool:
+    """Run a hidden child subcommand in a fresh process; True on exit 0."""
+    env = dict(os.environ)
+    src = str(Path(__file__).resolve().parent.parent)
+    env["PYTHONPATH"] = src + os.pathsep + env.get("PYTHONPATH", "")
+    try:
+        out = subprocess.run([sys.executable, "-m", "rkbench"] + argv,
+                             capture_output=True, text=True, timeout=900,
+                             env=env, check=False)
+        return out.returncode == 0
+    except (OSError, subprocess.SubprocessError):
+        return False
+
+
+def run_child(argv: list) -> dict:
     """Run a hidden child subcommand in a fresh process; failures are
     reported as JSON on stdout, never as a crash in the parent."""
     env = dict(os.environ)

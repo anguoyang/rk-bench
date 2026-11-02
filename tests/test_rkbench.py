@@ -8,7 +8,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "src"))
 
-from rkbench.bench import benchmark_model  # noqa: E402
+from rkbench.bench import aggregate_reports, benchmark_model  # noqa: E402
 from rkbench.cli import main  # noqa: E402
 from rkbench.leaderboard import (LeaderboardError, add_entry,  # noqa: E402
                                  empty_leaderboard, entry_from_report,
@@ -157,6 +157,29 @@ def sample_report(**board_override):
     }
 
 
+class AggregateTests(unittest.TestCase):
+    def _report(self, p50, verdict="NPU_ONLY", share=0.0):
+        report = sample_report()
+        report["latency_ms"] = {"p50": p50, "p95": p50 + 2.0, "mean": p50,
+                                "min": p50 - 1.0, "max": p50 + 3.0}
+        report["verdict"] = verdict
+        report["fallback_share_pct"] = share
+        return report
+
+    def test_median_aggregation(self):
+        reports = [self._report(51.0), self._report(44.0), self._report(44.2)]
+        result = aggregate_reports(reports, rss_delta_mb=47.0)
+        self.assertEqual(result["latency_ms"]["p50"], 44.2)
+        self.assertEqual(result["protocol"]["sessions"], 3)
+        self.assertEqual(result["memory"]["rss_delta_mb"], 47.0)
+        self.assertTrue(any("session p50" in n for n in result["notes"]))
+
+    def test_worst_verdict_wins(self):
+        reports = [self._report(40.0), self._report(41.0, verdict="MIXED", share=5.0)]
+        result = aggregate_reports(reports)
+        self.assertEqual(result["verdict"], "MIXED")
+
+
 class LeaderboardTests(unittest.TestCase):
     def test_add_and_replace(self):
         entry = entry_from_report(sample_report())
@@ -221,9 +244,11 @@ class CliTests(unittest.TestCase):
                 self.assertEqual(main(["run", str(model), "--name", "X",
                                        "--task", "detect", "--soc", "rk3588",
                                        "--json", str(report),
-                                       "--rss-cycles", "0"]), 0)
+                                       "--rss-cycles", "0",
+                                       "--sessions", "2"]), 0)
                 payload = json.loads(report.read_text(encoding="utf-8"))
                 self.assertEqual(payload["verdict"], "UNKNOWN")
+                self.assertEqual(payload["protocol"]["sessions"], 2)
                 board = tmp / "leaderboard.json"
                 self.assertEqual(main(["add", str(report), "--into", str(board)]), 0)
                 out = tmp / "LEADERBOARD.md"
