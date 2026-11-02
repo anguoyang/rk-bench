@@ -70,12 +70,17 @@ def check_env_compatible(board_env: dict, entry: dict) -> None:
 
 
 def add_entry(data: dict, entry: dict) -> dict:
-    """Insert or replace the entry for the same model+variant. Returns data."""
+    """Insert or replace the entry for the same model+variant+precision.
+
+    Precision is part of a row's identity: an INT8 twin must sit next to
+    its FP row, never replace it.
+    """
     check_env_compatible(data.get("board") or {}, entry)
     entries = data.setdefault("entries", [])
     for i, existing in enumerate(entries):
         if (existing["model"] == entry["model"]
-                and existing.get("variant", "") == entry.get("variant", "")):
+                and existing.get("variant", "") == entry.get("variant", "")
+                and existing.get("precision", "") == entry.get("precision", "")):
             entries[i] = entry
             data["generated_at"] = datetime.now(timezone.utc).isoformat()
             return data

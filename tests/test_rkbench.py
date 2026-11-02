@@ -187,6 +187,14 @@ class LeaderboardTests(unittest.TestCase):
         entry = entry_from_report(report)
         self.assertEqual(entry["board"]["soc_model"], "Rockchip RK3588")
 
+    def test_int8_twin_does_not_replace_fp(self):
+        data = empty_leaderboard(sample_report()["board"])
+        add_entry(data, entry_from_report(sample_report()))
+        int8 = sample_report()
+        int8["model"]["precision"] = "INT8"
+        add_entry(data, entry_from_report(int8))
+        self.assertEqual(len(data["entries"]), 2)
+
     def test_add_and_replace(self):
         entry = entry_from_report(sample_report())
         data = empty_leaderboard(entry["board"])

@@ -28,6 +28,9 @@ Board: rk3588 (Rockchip RK3588) · runtime 2.3.2 · driver 0.9.8
 | --- | --- | --- | --- | ---: | ---: | ---: | --- | ---: | ---: | ---: |
 | MobileNetV2 | classify | 1x224x224x3 | FP | 8.63 | 8.89 | 115.9 | NPU_ONLY | 0% | 23.9 | 7.31 |
 | ResNet50-v2 | classify | 1x224x224x3 | FP | 25.4 | 29.34 | 39.4 | NPU_ONLY | 0% | 110.1 | 49.92 |
+| YOLOv8n | detect | 1x640x640x3 | INT8 | 19.17 | 19.76 | 52.2 | NPU_ONLY | 0% | 22.8 | 4.13 |
+| YOLOv5s ReLU | detect | 1x640x640x3 | INT8 | 20.52 | 22.3 | 48.7 | NPU_ONLY | 0% | 30.8 | 8 |
+| YOLO11n | detect | 1x640x640x3 | INT8 | 31.2 | 31.69 | 32.1 | NPU_ONLY | 0% | 22.9 | 4.05 |
 | YOLOv8n | detect | 1x640x640x3 | FP | 37.5 | 38.58 | 26.7 | NPU_ONLY | 0% | 47.4 | 7.25 |
 | YOLOv5s ReLU | detect | 1x640x640x3 | FP | 37.8 | 38.58 | 26.5 | NPU_ONLY | 0% | 52.8 | 15.56 |
 | YOLO11n | detect | 1x640x640x3 | FP | 43.67 | 49.79 | 22.9 | NPU_ONLY | 0% | 46.1 | 6.71 |

@@ -1,5 +1,18 @@
 # Changelog
 
+## v0.2.0 — 2026-11-02
+
+- Leaderboard grows to 15 rows on RK3588:
+  - PP-OCRv4-Det (FP, NPU_ONLY, 47.86 ms) and PP-OCRv4-Rec (FP, **MIXED** —
+    one Reshape after the softmax runs on CPU, 2.58%).
+  - INT8 twins for YOLOv8n / YOLOv5s / YOLO11n, quantized with the zoo's
+    own recipe and its 20-image COCO calibration subset: 19.17 / 20.52 /
+    31.20 ms vs FP 37.50 / 37.80 / 43.67 ms, all still `NPU_ONLY`. The
+    calibration set is documented in each entry's notes.
+- `rkbench run --note` records provenance notes in the report.
+- Fixed: leaderboard row identity now includes precision — an INT8 report
+  previously replaced its FP twin instead of sitting next to it.
+
 ## v0.1.0 — 2026-11-02
 
 - First leaderboard: 10 public models measured on RK3588 under the frozen
