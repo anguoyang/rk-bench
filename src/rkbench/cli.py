@@ -44,6 +44,9 @@ def main(argv=None) -> int:
     run_p.add_argument("--sessions", type=int, default=PROTOCOL["sessions"],
                        help="independent sessions (separate processes) whose "
                             "p50/p95 are aggregated by median; 1 = single session")
+    run_p.add_argument("--note", action="append", default=[],
+                       help="free-text note stored in the report (repeatable); "
+                            "use it to document e.g. INT8 calibration sets")
     run_p.add_argument("--json", required=True, help="output report path")
 
     add_p = sub.add_parser("add", help="add a bench report to a leaderboard")
@@ -138,6 +141,8 @@ def _cmd_run(args) -> int:
         report["notes"].append(
             "priming skipped: on RK3588 the first process after idle can "
             "measure ~15% slower; this report may reflect that state")
+    for note in args.note:
+        report["notes"].append(note)
     out = Path(args.json)
     out.write_text(json.dumps(report, indent=2, ensure_ascii=False) + "\n",
                    encoding="utf-8")
