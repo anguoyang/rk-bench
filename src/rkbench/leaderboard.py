@@ -11,7 +11,7 @@ import json
 from datetime import datetime, timezone
 from pathlib import Path
 
-from .bench import input_shape_of
+from .bench import input_shape_of, normalize_soc_model
 
 ENV_KEYS = ("soc", "runtime", "driver")
 
@@ -32,6 +32,9 @@ def empty_leaderboard(board: dict) -> dict:
 def entry_from_report(report: dict) -> dict:
     model = report["model"]
     latency = report["latency_ms"]
+    board = dict(report["board"])
+    board["soc_model"] = normalize_soc_model(board.get("soc"),
+                                             board.get("soc_model"))
     return {
         "model": model["display_name"],
         "task": model["task"],
@@ -41,7 +44,7 @@ def entry_from_report(report: dict) -> dict:
         "source": model["source"],
         "file": {"basename": model["file"], "sha256": model["sha256"],
                  "size_bytes": model["size_bytes"]},
-        "board": report["board"],
+        "board": board,
         "measured_at": report["generated_at"],
         "protocol": report["protocol"],
         "latency_ms": latency,
@@ -135,10 +138,11 @@ def render_table(data: dict) -> str:
                 fb=("—" if fallback is None else _fmt(fallback, 2) + "%"),
                 rss=_fmt(memory.get("rss_delta_mb"), 1),
                 size=_fmt(size_mb, 2)))
+    runtime = str(board.get("runtime") or "?").split(" ")[0]
     header = ("Board: {label} ({soc_model}) · runtime {runtime} · driver {driver}"
               .format(label=board.get("board_label") or "?",
                       soc_model=board.get("soc_model") or board.get("soc") or "?",
-                      runtime=board.get("runtime") or "?",
+                      runtime=runtime,
                       driver=board.get("driver") or "?"))
     return header + "\n\n" + "\n".join(lines) + "\n"
 
@@ -158,6 +162,10 @@ def render_leaderboard_md(data: dict) -> str:
         "staging excluded), `MIXED` / `CPU_HEAVY` mean real fallback work runs on",
         "the CPU, `UNKNOWN` means the model could not be measured. RSS Δ is the",
         "process memory increase for load + one run (median of 3 fresh processes).",
+        "Input is the model's declared tensor shape (the RKNN model zoo FP",
+        "models are NHWC, e.g. 1x640x640x3). p50/p95 are medians of 3",
+        "independent sessions after a priming cycle; see the README's",
+        "\"How it is measured\" section for why both steps exist.",
         "",
     ]
     return "\n".join(parts)

@@ -22,8 +22,17 @@ PYTHONPATH=src python3 -m rkbench run yolov8n.rknn --name YOLOv8n --task detect 
 ## Leaderboard — RK3588
 
 <!-- LEADERBOARD:BEGIN -->
-_The first board is being measured; this table is generated from
-`data/leaderboard.json` and appears here with the v0.1 release._
+Board: rk3588 (Rockchip RK3588) · runtime 2.3.2 · driver 0.9.8
+
+| Model | Task | Input | Precision | p50 (ms) | p95 (ms) | FPS (p50) | Verdict | CPU fallback | RSS Δ (MB) | Model size (MB) |
+| --- | --- | --- | --- | ---: | ---: | ---: | --- | ---: | ---: | ---: |
+| YOLOv8n | detect | 1x640x640x3 | FP | 37.5 | 38.58 | 26.7 | NPU_ONLY | 0% | 47.4 | 7.25 |
+| YOLOv5s ReLU | detect | 1x640x640x3 | FP | 37.8 | 38.58 | 26.5 | NPU_ONLY | 0% | 52.8 | 15.56 |
+| YOLO11n | detect | 1x640x640x3 | FP | 43.67 | 49.79 | 22.9 | NPU_ONLY | 0% | 46.1 | 6.71 |
+| YOLOv10s | detect | 1x640x640x3 | FP | 88.09 | 90.49 | 11.4 | NPU_ONLY | 0% | 78.3 | 15.81 |
+| YOLOv8n-obb | detect-obb | 1x640x640x3 | FP | 37.65 | 38.26 | 26.6 | NPU_ONLY | 0% | 44.8 | 7.3 |
+| YOLOv8n-pose | pose | 1x640x640x3 | FP | 49.73 | 51.27 | 20.1 | NPU_ONLY | 0% | 47.6 | 8.17 |
+| YOLOv8s-seg | segment | 1x640x640x3 | FP | 104.53 | 113.08 | 9.6 | NPU_ONLY | 0% | 112.1 | 24.46 |
 <!-- LEADERBOARD:END -->
 
 Full table with method notes: [docs/LEADERBOARD.md](docs/LEADERBOARD.md).

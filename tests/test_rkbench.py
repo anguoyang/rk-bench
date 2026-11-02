@@ -181,6 +181,12 @@ class AggregateTests(unittest.TestCase):
 
 
 class LeaderboardTests(unittest.TestCase):
+    def test_soc_model_sanitized(self):
+        report = sample_report()
+        report["board"]["soc_model"] = "Some OEM, A588"
+        entry = entry_from_report(report)
+        self.assertEqual(entry["board"]["soc_model"], "Rockchip RK3588")
+
     def test_add_and_replace(self):
         entry = entry_from_report(sample_report())
         data = empty_leaderboard(entry["board"])

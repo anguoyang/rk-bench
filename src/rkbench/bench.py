@@ -103,6 +103,21 @@ def read_vmrss_kb() -> Optional[int]:
     return None
 
 
+_KNOWN_SOC_MODELS = {"rk3588": "Rockchip RK3588", "rk3588s": "Rockchip RK3588S",
+                     "rk3576": "Rockchip RK3576", "rk3568": "Rockchip RK3568",
+                     "rk3566": "Rockchip RK3566", "rk3562": "Rockchip RK3562"}
+
+
+def normalize_soc_model(soc: str, raw) -> str:
+    """Public-safe SoC model string. Board device-tree strings can carry
+    vendor/OEM names that are not ours to publish (RK Edge Doctor had to
+    sanitize the same field), so only a Rockchip-branded string or the
+    known-SoC mapping is ever published."""
+    if raw and "rockchip" in str(raw).lower():
+        return str(raw)
+    return _KNOWN_SOC_MODELS.get((soc or "").lower(), "unknown")
+
+
 def host_info(board_label: str) -> dict:
     soc_model = "unknown"
     try:
