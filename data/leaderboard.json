@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "generated_at": "2026-11-02T00:57:14.001037+00:00",
+  "generated_at": "2026-11-02T02:30:52.988720+00:00",
   "board": {
     "soc": "rk3588",
     "board_label": "rk3588",
@@ -625,6 +625,130 @@
       },
       "notes": [
         "aggregated from 3 independent sessions; session p50 (ms): [6.504, 6.366, 6.427]"
+      ]
+    },
+    {
+      "model": "PP-OCRv4-Det",
+      "task": "ocr-detect",
+      "variant": "",
+      "precision": "FP",
+      "input_shape": "1x480x480x3",
+      "source": {
+        "name": "RKNN Model Zoo",
+        "url": "https://github.com/airockchip/rknn_model_zoo"
+      },
+      "file": {
+        "basename": "ppocrv4_det_rk3588_fp.rknn",
+        "sha256": "d073293ec6b67cf175849cec161b968f6505d8d454c341017bc48a3dc29ea26c",
+        "size_bytes": 3931899
+      },
+      "board": {
+        "soc": "rk3588",
+        "board_label": "rk3588",
+        "os": "Ubuntu 22.04.5 LTS",
+        "kernel": "6.1.118",
+        "soc_model": "Rockchip RK3588",
+        "driver": "0.9.8",
+        "runtime": "2.3.2 (429f97ae6b@2025-04-09T09:09:27)",
+        "loadavg": [
+          16.97,
+          16.71,
+          16.6
+        ]
+      },
+      "measured_at": "2026-11-02T02:30:29.940162+00:00",
+      "protocol": {
+        "warmup": 10,
+        "runs": 50,
+        "timer": "PERF_RUN",
+        "rss_cycles": 3,
+        "sessions": 3,
+        "aggregation": "median of independent sessions, each in its own process (single sessions on a busy board can sit ~15% off the sustained state)",
+        "priming": "one sacrificial load+5-run cycle in a separate process before measuring (first-context effect: the first RKNN process after idle measures ~15% slower on RK3588/rknpu_ondemand, even after warmup)"
+      },
+      "latency_ms": {
+        "p50": 47.864,
+        "p95": 49.989,
+        "mean": 47.781,
+        "min": 44.62,
+        "max": 63.478
+      },
+      "fps_p50": 20.9,
+      "verdict": "NPU_ONLY",
+      "fallback_ops": [],
+      "fallback_share_pct": 0.0,
+      "memory": {
+        "file_size_bytes": 3931899,
+        "rss_delta_mb": 38.0,
+        "perf_rw_kb_per_frame": 112663
+      },
+      "notes": [
+        "aggregated from 3 independent sessions; session p50 (ms): [55.295, 47.864, 47.28]"
+      ]
+    },
+    {
+      "model": "PP-OCRv4-Rec",
+      "task": "ocr-recognize",
+      "variant": "",
+      "precision": "FP",
+      "input_shape": "1x48x320x3",
+      "source": {
+        "name": "RKNN Model Zoo",
+        "url": "https://github.com/airockchip/rknn_model_zoo"
+      },
+      "file": {
+        "basename": "ppocrv4_rec_rk3588_fp.rknn",
+        "sha256": "d714eef1ef3aaf8880bbf38eb61578036e4de0cdf65f6af44eaf6b2243a06f8b",
+        "size_bytes": 7066425
+      },
+      "board": {
+        "soc": "rk3588",
+        "board_label": "rk3588",
+        "os": "Ubuntu 22.04.5 LTS",
+        "kernel": "6.1.118",
+        "soc_model": "Rockchip RK3588",
+        "driver": "0.9.8",
+        "runtime": "2.3.2 (429f97ae6b@2025-04-09T09:09:27)",
+        "loadavg": [
+          16.98,
+          16.72,
+          16.6
+        ]
+      },
+      "measured_at": "2026-11-02T02:30:42.273361+00:00",
+      "protocol": {
+        "warmup": 10,
+        "runs": 50,
+        "timer": "PERF_RUN",
+        "rss_cycles": 3,
+        "sessions": 3,
+        "aggregation": "median of independent sessions, each in its own process (single sessions on a busy board can sit ~15% off the sustained state)",
+        "priming": "one sacrificial load+5-run cycle in a separate process before measuring (first-context effect: the first RKNN process after idle measures ~15% slower on RK3588/rknpu_ondemand, even after warmup)"
+      },
+      "latency_ms": {
+        "p50": 22.679,
+        "p95": 26.453,
+        "mean": 22.974,
+        "min": 21.03,
+        "max": 43.06
+      },
+      "fps_p50": 44.1,
+      "verdict": "MIXED",
+      "fallback_ops": [
+        {
+          "op_type": "Reshape",
+          "time_us": 579,
+          "full_name": "Reshape:softmax_11.tmp_0-rs"
+        }
+      ],
+      "fallback_share_pct": 2.58,
+      "memory": {
+        "file_size_bytes": 7066425,
+        "rss_delta_mb": 23.3,
+        "perf_rw_kb_per_frame": 41071
+      },
+      "notes": [
+        "aggregated from 3 independent sessions; session p50 (ms): [22.806, 22.679, 21.738]"
       ]
     }
   ]

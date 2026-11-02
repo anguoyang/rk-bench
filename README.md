@@ -34,6 +34,8 @@ Board: rk3588 (Rockchip RK3588) · runtime 2.3.2 · driver 0.9.8
 | YOLOv10s | detect | 1x640x640x3 | FP | 88.09 | 90.49 | 11.4 | NPU_ONLY | 0% | 78.3 | 15.81 |
 | YOLOv8n-obb | detect-obb | 1x640x640x3 | FP | 37.65 | 38.26 | 26.6 | NPU_ONLY | 0% | 44.8 | 7.3 |
 | RetinaFace Mobile320 | face-detect | 1x320x320x3 | FP | 6.43 | 6.68 | 155.6 | MIXED | 4.05% | 12.9 | 1.49 |
+| PP-OCRv4-Det | ocr-detect | 1x480x480x3 | FP | 47.86 | 49.99 | 20.9 | NPU_ONLY | 0% | 38 | 3.75 |
+| PP-OCRv4-Rec | ocr-recognize | 1x48x320x3 | FP | 22.68 | 26.45 | 44.1 | MIXED | 2.58% | 23.3 | 6.74 |
 | YOLOv8n-pose | pose | 1x640x640x3 | FP | 49.73 | 51.27 | 20.1 | NPU_ONLY | 0% | 47.6 | 8.17 |
 | YOLOv8s-seg | segment | 1x640x640x3 | FP | 104.53 | 113.08 | 9.6 | NPU_ONLY | 0% | 112.1 | 24.46 |
 <!-- LEADERBOARD:END -->
