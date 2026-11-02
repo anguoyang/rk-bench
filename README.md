@@ -57,7 +57,11 @@ Raw data (the single source of truth): [data/leaderboard.json](data/leaderboard.
   separate process), then **3 independent sessions** (separate processes),
   each warmup 10 + 50 measured runs; the published p50/p95 are the medians
   across sessions and the verdict is the worst session's. Zero inputs
-  shaped by the model's own input attributes, default NPU core assignment.
+  shaped by the model's own input attributes, default NPU core assignment
+  (every report records its core-mask setting in its protocol block;
+  `--core-mask` can pin cores explicitly — see
+  [docs/CORE_MASK_STUDY.md](docs/CORE_MASK_STUDY.md) for what that does
+  and does not buy on RK3588).
   Single sessions on a busy board can sit ~15% off the sustained state —
   one YOLOv5s session measured 43.2 ms against 37.8–38.5 ms in three
   repeat processes — which is why no leaderboard number here ever comes

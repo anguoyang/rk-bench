@@ -1,5 +1,14 @@
 # Changelog
 
+## v0.3.0 — 2026-11-02
+
+- `rkbench run --core-mask` pins NPU cores via `rknn_set_core_mask`
+  (auto / 0 / 1 / 2 / 0_1 / 0_2 / 1_2 / all; default = never called).
+  The setting is recorded in every report's protocol block.
+- New study: docs/CORE_MASK_STUDY.md — core assignment on RK3588 is a
+  ≤5% lever for single-stream models; single-core pinning costs the
+  segmentation model 9.6%; two cores capture nearly all of the gain.
+
 ## v0.2.0 — 2026-11-02
 
 - Leaderboard grows to 15 rows on RK3588:
