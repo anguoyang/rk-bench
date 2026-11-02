@@ -73,6 +73,9 @@ class FakeBackend:
     def load(self, data):
         self.data = data
 
+    def set_core_mask(self, mask):
+        self.core_mask = mask
+
     def sdk_version(self):
         return "2.3.2", "0.9.8"
 
@@ -97,6 +100,27 @@ class FakeBackend:
 
 
 class BenchTests(unittest.TestCase):
+    def test_core_mask_mapping(self):
+        from rkbench.rknn_runtime import CORE_MASK_VALUES
+        self.assertEqual(CORE_MASK_VALUES["all"], 0x7)
+        self.assertEqual(CORE_MASK_VALUES["0"], 0x1)
+        self.assertEqual(CORE_MASK_VALUES["0_1"], 0x3)
+        self.assertNotIn("default", CORE_MASK_VALUES)
+
+    def test_benchmark_with_core_mask(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            model = Path(tmp) / "yolov8n.rknn"
+            model.write_bytes(b"fake-model-bytes")
+            meta = {"name": "YOLOv8n", "task": "detect", "soc": "rk3588",
+                    "board_label": "rk3588", "precision": "FP",
+                    "source_name": "RKNN Model Zoo", "source_url": ""}
+            backend = FakeBackend()
+            report = benchmark_model(model, meta, runs=5, warmup=2,
+                                     backend=backend, core_mask="all")
+            self.assertEqual(backend.core_mask, 0x7)
+            self.assertEqual(report["protocol"]["core_mask"], "all")
+            self.assertEqual(report["verdict"], "NPU_ONLY")
+
     def test_benchmark_with_fake_backend(self):
         with tempfile.TemporaryDirectory() as tmp:
             model = Path(tmp) / "yolov8n.rknn"

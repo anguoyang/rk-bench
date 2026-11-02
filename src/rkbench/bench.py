@@ -19,7 +19,8 @@ from typing import Optional
 
 from . import __version__
 from .perf_parse import judge, latency_stats, parse_perf_detail
-from .rknn_runtime import ModelLoadError, RknnRuntime, RuntimeUnavailable
+from .rknn_runtime import (CORE_MASK_VALUES, ModelLoadError, RknnRuntime,
+                           RuntimeUnavailable)
 
 PROTOCOL = {"warmup": 10, "runs": 50, "timer": "PERF_RUN",
             "rss_cycles": 3, "sessions": 3,
@@ -172,10 +173,12 @@ def _empty_report(path: Path, meta: dict) -> dict:
 
 
 def benchmark_model(path: Path, meta: dict, runs: int = 50, warmup: int = 10,
-                    backend=None, rss_delta_mb: Optional[float] = None) -> dict:
+                    backend=None, rss_delta_mb: Optional[float] = None,
+                    core_mask: Optional[str] = None) -> dict:
     report = _empty_report(path, meta)
     report["protocol"]["warmup"] = warmup
     report["protocol"]["runs"] = runs
+    report["protocol"]["core_mask"] = core_mask or "default"
     notes = report["notes"]
     host = host_info(meta.get("board_label") or "")
     report["board"].update({"os": host["os"], "kernel": host["kernel"],
@@ -198,6 +201,12 @@ def benchmark_model(path: Path, meta: dict, runs: int = 50, warmup: int = 10,
     except (ModelLoadError, RuntimeUnavailable) as error:
         notes.append("model load failed: " + str(error))
         return report
+    if core_mask:
+        try:
+            backend.set_core_mask(CORE_MASK_VALUES[core_mask])
+        except (ModelLoadError, RuntimeUnavailable, AttributeError) as error:
+            notes.append("set_core_mask failed: " + str(error))
+            return report
     try:
         try:
             api_version, drv_version = backend.sdk_version()

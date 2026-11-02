@@ -9,6 +9,7 @@ from . import __version__
 from .bench import (PROTOCOL, aggregate_reports, benchmark_model,
                     measure_rss_delta, prime, prime_child, rss_probe_child,
                     spawn_child)
+from .rknn_runtime import CORE_MASK_VALUES
 from .leaderboard import (LeaderboardError, add_entry, empty_leaderboard,
                           entry_from_report, load_leaderboard,
                           render_leaderboard_md, save_leaderboard,
@@ -47,6 +48,10 @@ def main(argv=None) -> int:
     run_p.add_argument("--note", action="append", default=[],
                        help="free-text note stored in the report (repeatable); "
                             "use it to document e.g. INT8 calibration sets")
+    run_p.add_argument("--core-mask", default="default",
+                       choices=["default"] + sorted(CORE_MASK_VALUES),
+                       help="NPU core assignment passed to rknn_set_core_mask "
+                            "(default: never called, runtime decides)")
     run_p.add_argument("--json", required=True, help="output report path")
 
     add_p = sub.add_parser("add", help="add a bench report to a leaderboard")
@@ -76,6 +81,7 @@ def main(argv=None) -> int:
     sess_p.add_argument("--source-url", default="")
     sess_p.add_argument("--runs", type=int, default=PROTOCOL["runs"])
     sess_p.add_argument("--warmup", type=int, default=PROTOCOL["warmup"])
+    sess_p.add_argument("--core-mask", default="default")
     sess_p.add_argument("--json", required=True)
 
     args = parser.parse_args(argv)
@@ -104,13 +110,18 @@ def main(argv=None) -> int:
                 "board_label": args.board_label or args.soc,
                 "source_name": args.source_name, "source_url": args.source_url}
         report = benchmark_model(path, meta, runs=args.runs,
-                                 warmup=args.warmup)
+                                 warmup=args.warmup,
+                                 core_mask=_mask_or_none(args.core_mask))
         Path(args.json).write_text(
             json.dumps(report, indent=2, ensure_ascii=False) + "\n",
             encoding="utf-8")
         return 0
     parser.print_help()
     return 2
+
+
+def _mask_or_none(name: str):
+    return None if name == "default" else name
 
 
 def _cmd_run(args) -> int:
@@ -133,7 +144,8 @@ def _cmd_run(args) -> int:
             return 1
     else:
         report = benchmark_model(path, meta, runs=args.runs,
-                                 warmup=args.warmup, rss_delta_mb=rss_delta)
+                                 warmup=args.warmup, rss_delta_mb=rss_delta,
+                                 core_mask=_mask_or_none(args.core_mask))
         report["protocol"]["sessions"] = 1
         report["protocol"]["aggregation"] = "single session (no aggregation)"
     if args.no_prime:
@@ -174,6 +186,7 @@ def _run_sessions(path, meta, args, rss_delta):
                     "--source-name", meta["source_name"],
                     "--source-url", meta["source_url"],
                     "--runs", str(args.runs), "--warmup", str(args.warmup),
+                    "--core-mask", args.core_mask,
                     "--json", str(out)]
             if not spawn_child(argv) or not out.is_file():
                 return None

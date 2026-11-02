@@ -22,6 +22,19 @@ Q_SDK_VERSION = 5
 
 RKNN_FLAG_COLLECT_PERF_MASK = 0x00000008
 
+# rknn_core_mask (rknn_api.h). "default" is deliberately absent: it means
+# rknn_set_core_mask is never called and the runtime decides.
+CORE_MASK_VALUES = {
+    "auto": 0x0,
+    "0": 0x1,
+    "1": 0x2,
+    "2": 0x4,
+    "0_1": 0x3,
+    "0_2": 0x5,
+    "1_2": 0x6,
+    "all": 0x7,
+}
+
 # rknn_tensor_type -> (name, element size in bytes)
 TENSOR_TYPES = {
     1: ("FLOAT32", 4),
@@ -162,6 +175,13 @@ class RknnRuntime:
         if ret != 0 or not ctx.value:
             raise ModelLoadError("rknn_init failed with code %d" % ret)
         self._ctx = ctx
+
+    def set_core_mask(self, mask: int) -> None:
+        lib = self._ensure_lib()
+        ret = lib.rknn_set_core_mask(self._ctx, mask)
+        if ret != 0:
+            raise ModelLoadError("rknn_set_core_mask(%d) failed with code %d"
+                                 % (mask, ret))
 
     def _query(self, cmd: int, struct) -> None:
         ret = self._lib.rknn_query(self._ctx, cmd, ctypes.byref(struct), ctypes.sizeof(struct))
