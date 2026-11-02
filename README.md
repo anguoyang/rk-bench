@@ -36,8 +36,15 @@ Raw data (the single source of truth): [data/leaderboard.json](data/leaderboard.
 - Board: RK3588 (Ubuntu 22.04, kernel 6.1.118), rknpu driver 0.9.8, librknnrt 2.3.2.
   The board is busy (load ≈ 16); that is exactly why latency uses the
   runtime's hardware counters instead of wall-clock time.
-- Protocol: warmup 10 + 50 measured runs, zero inputs shaped by the model's
-  own input attributes, default NPU core assignment.
+- Protocol: a priming cycle first (one sacrificial load + 5 runs in a
+  separate process), then warmup 10 + 50 measured runs, zero inputs shaped
+  by the model's own input attributes, default NPU core assignment.
+  The priming step exists because of a measured quirk: on RK3588 with the
+  `rknpu_ondemand` governor, the first RKNN process after an idle gap is
+  ~15% slower across *all* runs (YOLO11n: 51.4 ms vs 44.0 ms primed), and
+  warmup inside that process does not cure it. rkbench primes by default,
+  so the numbers here are the sustained state and a single `rkbench run`
+  reproduces them; `--no-prime` skips it and says so in the report.
 - CPU fallback: PERF_DETAIL per-layer accounting. `InputOperator` /
   `OutputOperator` staging is structural and never counted as fallback.
   Fallback share < 1% and no single fallback op ≥ 100 µs → `NPU_ONLY`;

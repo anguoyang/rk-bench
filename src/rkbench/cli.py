@@ -6,8 +6,8 @@ import sys
 from pathlib import Path
 
 from . import __version__
-from .bench import (PROTOCOL, benchmark_model, measure_rss_delta,
-                    rss_probe_child)
+from .bench import (PROTOCOL, benchmark_model, measure_rss_delta, prime,
+                    prime_child, rss_probe_child)
 from .leaderboard import (LeaderboardError, add_entry, empty_leaderboard,
                           entry_from_report, load_leaderboard,
                           render_leaderboard_md, save_leaderboard,
@@ -37,6 +37,9 @@ def main(argv=None) -> int:
     run_p.add_argument("--warmup", type=int, default=PROTOCOL["warmup"])
     run_p.add_argument("--rss-cycles", type=int, default=PROTOCOL["rss_cycles"],
                        help="fresh probe processes for the RSS delta (0 skips it)")
+    run_p.add_argument("--no-prime", action="store_true",
+                       help="skip the priming cycle (first process after idle "
+                            "measures ~15%% slower on RK3588; see README)")
     run_p.add_argument("--json", required=True, help="output report path")
 
     add_p = sub.add_parser("add", help="add a bench report to a leaderboard")
@@ -51,6 +54,9 @@ def main(argv=None) -> int:
     probe_p = sub.add_parser("_rss_probe", help=argparse.SUPPRESS)
     probe_p.add_argument("model")
 
+    prime_p = sub.add_parser("_prime", help=argparse.SUPPRESS)
+    prime_p.add_argument("model")
+
     args = parser.parse_args(argv)
     if args.command == "run":
         return _cmd_run(args)
@@ -63,6 +69,11 @@ def main(argv=None) -> int:
         if not path.is_file():
             return 2
         return rss_probe_child(path)
+    if args.command == "_prime":
+        path = Path(args.model)
+        if not path.is_file():
+            return 2
+        return prime_child(path)
     parser.print_help()
     return 2
 
@@ -72,6 +83,9 @@ def _cmd_run(args) -> int:
     if not path.is_file():
         print("rkbench: model file not found: %s" % path, file=sys.stderr)
         return 2
+    primed = False
+    if not args.no_prime:
+        primed = prime(path)
     rss_delta = measure_rss_delta(path, cycles=args.rss_cycles)
     meta = {"name": args.name, "task": args.task, "variant": args.variant,
             "precision": args.precision, "soc": args.soc,
@@ -79,6 +93,11 @@ def _cmd_run(args) -> int:
             "source_name": args.source_name, "source_url": args.source_url}
     report = benchmark_model(path, meta, runs=args.runs, warmup=args.warmup,
                              rss_delta_mb=rss_delta)
+    if args.no_prime:
+        report["protocol"]["priming"] = "skipped (--no-prime)"
+        report["notes"].append(
+            "priming skipped: on RK3588 the first process after idle can "
+            "measure ~15% slower; this report may reflect that state")
     out = Path(args.json)
     out.write_text(json.dumps(report, indent=2, ensure_ascii=False) + "\n",
                    encoding="utf-8")

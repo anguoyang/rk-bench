@@ -195,6 +195,13 @@ class LeaderboardTests(unittest.TestCase):
 
 
 class CliTests(unittest.TestCase):
+    def test_prime_child_without_runtime(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            model = Path(tmp) / "x.rknn"
+            model.write_bytes(b"nope")
+            self.assertEqual(main(["_prime", str(model)]), 0)
+            self.assertEqual(main(["_prime", str(Path(tmp) / "nope.rknn")]), 2)
+
     def test_missing_model_exit_2(self):
         with tempfile.TemporaryDirectory() as tmp:
             code = main(["run", str(Path(tmp) / "nope.rknn"),

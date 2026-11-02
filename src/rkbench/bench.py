@@ -22,7 +22,11 @@ from .perf_parse import judge, latency_stats, parse_perf_detail
 from .rknn_runtime import ModelLoadError, RknnRuntime, RuntimeUnavailable
 
 PROTOCOL = {"warmup": 10, "runs": 50, "timer": "PERF_RUN",
-            "rss_cycles": 3}
+            "rss_cycles": 3,
+            "priming": "one sacrificial load+5-run cycle in a separate "
+                       "process before measuring (first-context effect: "
+                       "the first RKNN process after idle measures ~15% "
+                       "slower on RK3588/rknpu_ondemand, even after warmup)"}
 THRESHOLDS = {"cpu_heavy_pct": 20.0, "npu_only_fallback_pct": 1.0,
               "single_op_us": 100}
 
@@ -217,6 +221,61 @@ def rss_probe_child(path: Path) -> int:
     return 0
 
 
+def prime_once(path: Path, runs: int = 5) -> bool:
+    """Sacrificial load + a few runs in this (child) process.
+
+    On RK3588 with the rknpu_ondemand governor, the first RKNN process
+    after an idle gap measures ~15% slower across all 50 runs — warmup
+    inside that process does not cure it, but a priming process before
+    the measuring one does. rkbench therefore primes by default so a
+    leaderboard number can be reproduced by running the tool once.
+    """
+    backend = RknnRuntime()
+    ok, _ = backend.available()
+    if not ok:
+        return False
+    try:
+        data = path.read_bytes()
+        backend.load(data)
+        attrs, _ = backend.io_attrs()
+        if any(dim <= 0 for a in attrs for dim in a["dims"]):
+            return False
+        inputs = backend.make_zero_inputs(attrs)
+        for _ in range(runs):
+            backend.run_once(inputs)
+        return True
+    except (ModelLoadError, RuntimeUnavailable, OSError):
+        return False
+    finally:
+        backend.destroy()
+
+
+def prime_child(path: Path) -> int:
+    print(json.dumps({"primed": prime_once(path)}))
+    return 0
+
+
+def run_child(argv: list) -> int:
+    """Run a hidden child subcommand in a fresh process; failures are
+    reported as JSON on stdout, never as a crash in the parent."""
+    env = dict(os.environ)
+    src = str(Path(__file__).resolve().parent.parent)
+    env["PYTHONPATH"] = src + os.pathsep + env.get("PYTHONPATH", "")
+    try:
+        out = subprocess.run([sys.executable, "-m", "rkbench"] + argv,
+                             capture_output=True, text=True, timeout=600,
+                             env=env, check=False)
+        payload = json.loads(out.stdout.strip().splitlines()[-1])
+        return payload
+    except (OSError, subprocess.SubprocessError, ValueError, IndexError):
+        return {}
+
+
+def prime(path: Path) -> bool:
+    payload = run_child(["_prime", str(path)])
+    return bool(payload.get("primed"))
+
+
 def measure_rss_delta(path: Path, cycles: int = 3,
                       runner=None) -> Optional[float]:
     """Median RSS delta over `cycles` fresh child processes."""
@@ -234,16 +293,6 @@ def measure_rss_delta(path: Path, cycles: int = 3,
 
 
 def _default_probe_runner(path: Path) -> Optional[float]:
-    env = dict(os.environ)
-    src = str(Path(__file__).resolve().parent.parent)
-    env["PYTHONPATH"] = src + os.pathsep + env.get("PYTHONPATH", "")
-    try:
-        out = subprocess.run([sys.executable, "-m", "rkbench", "_rss_probe",
-                              str(path)],
-                             capture_output=True, text=True, timeout=300,
-                             env=env, check=False)
-        payload = json.loads(out.stdout.strip().splitlines()[-1])
-        value = payload.get("rss_delta_mb")
-        return float(value) if value is not None else None
-    except (OSError, subprocess.SubprocessError, ValueError, IndexError):
-        return None
+    payload = run_child(["_rss_probe", str(path)])
+    value = payload.get("rss_delta_mb")
+    return float(value) if value is not None else None
