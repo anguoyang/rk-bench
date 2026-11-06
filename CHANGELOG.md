@@ -1,5 +1,19 @@
 # Changelog
 
+## v0.4.0 — 2026-11-06
+
+- Leaderboard grows from 15 to 19 rows on RK3588: YOLOv8n-seg FP,
+  PP-YOLOE-s FP, YOLOv8n-pose INT8, and YOLOv8s-seg INT8, all `NPU_ONLY`.
+- All new models use official RKNN Model Zoo ONNX downloads and recipes,
+  converted with rknn-toolkit2 2.3.2. INT8 calibration uses the Zoo's
+  20-image COCO subset; pose follows its two-step hybrid recipe with
+  the specified FP16 ranges retained.
+- DeepLabV3 FP was skipped: the Zoo example supplies a TensorFlow `.pb`
+  model and converter, without an ONNX download/recipe for this task.
+- [Conversion provenance](docs/CONVERSION_V0.4.0.md) records sources,
+  full ONNX/RKNN SHA-256 hashes, calibration, and the skipped target.
+  The priming + three-session protocol and existing entries are unchanged.
+
 ## v0.3.0 — 2026-11-02
 
 - `rkbench run --core-mask` pins NPU cores via `rknn_set_core_mask`

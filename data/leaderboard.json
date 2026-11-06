@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "generated_at": "2026-11-02T02:36:12.106572+00:00",
+  "generated_at": "2026-11-06T21:17:36.316396+00:00",
   "board": {
     "soc": "rk3588",
     "board_label": "rk3588",
@@ -929,6 +929,252 @@
       },
       "notes": [
         "aggregated from 3 independent sessions; session p50 (ms): [104.42, 114.272, 104.535]"
+      ]
+    },
+    {
+      "model": "YOLOv8n-seg",
+      "task": "segment",
+      "variant": "",
+      "precision": "FP",
+      "input_shape": "1x640x640x3",
+      "source": {
+        "name": "RKNN Model Zoo",
+        "url": "https://github.com/airockchip/rknn_model_zoo"
+      },
+      "file": {
+        "basename": "yolov8n-seg_rk3588_fp.rknn",
+        "sha256": "8da41b4e72a556d0a0a0497b5d49f7e492519e9623a03c3babe49cc98cdaa37d",
+        "size_bytes": 8304755
+      },
+      "board": {
+        "soc": "rk3588",
+        "board_label": "rk3588",
+        "os": "Ubuntu 22.04.5 LTS",
+        "kernel": "6.1.118",
+        "soc_model": "Rockchip RK3588",
+        "driver": "0.9.8",
+        "runtime": "2.3.2 (429f97ae6b@2025-04-09T09:09:27)",
+        "loadavg": [
+          17.17,
+          16.85,
+          16.65
+        ]
+      },
+      "measured_at": "2026-11-06T21:13:43.378521+00:00",
+      "protocol": {
+        "warmup": 10,
+        "runs": 50,
+        "timer": "PERF_RUN",
+        "rss_cycles": 3,
+        "sessions": 3,
+        "aggregation": "median of independent sessions, each in its own process (single sessions on a busy board can sit ~15% off the sustained state)",
+        "priming": "one sacrificial load+5-run cycle in a separate process before measuring (first-context effect: the first RKNN process after idle measures ~15% slower on RK3588/rknpu_ondemand, even after warmup)",
+        "core_mask": "default"
+      },
+      "latency_ms": {
+        "p50": 46.738,
+        "p95": 57.357,
+        "mean": 49.561,
+        "min": 44.009,
+        "max": 73.164
+      },
+      "fps_p50": 21.4,
+      "verdict": "NPU_ONLY",
+      "fallback_ops": [],
+      "fallback_share_pct": 0.0,
+      "memory": {
+        "file_size_bytes": 8304755,
+        "rss_delta_mb": 50.7,
+        "perf_rw_kb_per_frame": 90603
+      },
+      "notes": [
+        "aggregated from 3 independent sessions; session p50 (ms): [46.432, 49.245, 46.738]",
+        "Converted on x86_64 with rknn-toolkit2 2.3.2; official yolov8_seg ONNX and FP recipe, mean 0 / std 255; no quantization."
+      ]
+    },
+    {
+      "model": "PP-YOLOE-s",
+      "task": "detect",
+      "variant": "",
+      "precision": "FP",
+      "input_shape": "1x640x640x3",
+      "source": {
+        "name": "RKNN Model Zoo",
+        "url": "https://github.com/airockchip/rknn_model_zoo"
+      },
+      "file": {
+        "basename": "ppyoloe_s_rk3588_fp.rknn",
+        "sha256": "2ee9a68d9ae0807ed76e0238345bc4f363c5834611fe45702c8a04861e6f2bc2",
+        "size_bytes": 17910014
+      },
+      "board": {
+        "soc": "rk3588",
+        "board_label": "rk3588",
+        "os": "Ubuntu 22.04.5 LTS",
+        "kernel": "6.1.118",
+        "soc_model": "Rockchip RK3588",
+        "driver": "0.9.8",
+        "runtime": "2.3.2 (429f97ae6b@2025-04-09T09:09:27)",
+        "loadavg": [
+          16.93,
+          16.85,
+          16.67
+        ]
+      },
+      "measured_at": "2026-11-06T21:14:48.923154+00:00",
+      "protocol": {
+        "warmup": 10,
+        "runs": 50,
+        "timer": "PERF_RUN",
+        "rss_cycles": 3,
+        "sessions": 3,
+        "aggregation": "median of independent sessions, each in its own process (single sessions on a busy board can sit ~15% off the sustained state)",
+        "priming": "one sacrificial load+5-run cycle in a separate process before measuring (first-context effect: the first RKNN process after idle measures ~15% slower on RK3588/rknpu_ondemand, even after warmup)",
+        "core_mask": "default"
+      },
+      "latency_ms": {
+        "p50": 67.706,
+        "p95": 70.435,
+        "mean": 68.082,
+        "min": 66.96,
+        "max": 83.151
+      },
+      "fps_p50": 14.8,
+      "verdict": "NPU_ONLY",
+      "fallback_ops": [],
+      "fallback_share_pct": 0.0,
+      "memory": {
+        "file_size_bytes": 17910014,
+        "rss_delta_mb": 91.6,
+        "perf_rw_kb_per_frame": 134110
+      },
+      "notes": [
+        "aggregated from 3 independent sessions; session p50 (ms): [67.626, 67.862, 67.706]",
+        "Converted on x86_64 with rknn-toolkit2 2.3.2; official ppyoloe_s ONNX and FP recipe, mean 0 / std 255; no quantization."
+      ]
+    },
+    {
+      "model": "YOLOv8n-pose",
+      "task": "pose",
+      "variant": "",
+      "precision": "INT8",
+      "input_shape": "1x640x640x3",
+      "source": {
+        "name": "RKNN Model Zoo",
+        "url": "https://github.com/airockchip/rknn_model_zoo"
+      },
+      "file": {
+        "basename": "yolov8n-pose_rk3588_int8.rknn",
+        "sha256": "e644c5d06b3875ee055b5c18a59626c15d1467f2adba48c0742814aac9b7a253",
+        "size_bytes": 5219191
+      },
+      "board": {
+        "soc": "rk3588",
+        "board_label": "rk3588",
+        "os": "Ubuntu 22.04.5 LTS",
+        "kernel": "6.1.118",
+        "soc_model": "Rockchip RK3588",
+        "driver": "0.9.8",
+        "runtime": "2.3.2 (429f97ae6b@2025-04-09T09:09:27)",
+        "loadavg": [
+          17.83,
+          17.11,
+          16.77
+        ]
+      },
+      "measured_at": "2026-11-06T21:16:01.092670+00:00",
+      "protocol": {
+        "warmup": 10,
+        "runs": 50,
+        "timer": "PERF_RUN",
+        "rss_cycles": 3,
+        "sessions": 3,
+        "aggregation": "median of independent sessions, each in its own process (single sessions on a busy board can sit ~15% off the sustained state)",
+        "priming": "one sacrificial load+5-run cycle in a separate process before measuring (first-context effect: the first RKNN process after idle measures ~15% slower on RK3588/rknpu_ondemand, even after warmup)",
+        "core_mask": "default"
+      },
+      "latency_ms": {
+        "p50": 31.643,
+        "p95": 32.712,
+        "mean": 31.796,
+        "min": 24.554,
+        "max": 36.397
+      },
+      "fps_p50": 31.6,
+      "verdict": "NPU_ONLY",
+      "fallback_ops": [],
+      "fallback_share_pct": 0.0,
+      "memory": {
+        "file_size_bytes": 5219191,
+        "rss_delta_mb": 28.4,
+        "perf_rw_kb_per_frame": 46991
+      },
+      "notes": [
+        "aggregated from 3 independent sessions; session p50 (ms): [31.909, 31.643, 25.185]",
+        "Converted on x86_64 with rknn-toolkit2 2.3.2; official yolov8_pose two-step hybrid INT8 recipe, proposal=False and the three Zoo custom_hybrid ranges retained as FP16 (not entirely INT8).",
+        "Quantized with mean 0 / std 255 and the official RKNN Model Zoo datasets/COCO/coco_subset_20.txt: 20 COCO val2017 images, filenames and order verified; no accuracy claim."
+      ]
+    },
+    {
+      "model": "YOLOv8s-seg",
+      "task": "segment",
+      "variant": "",
+      "precision": "INT8",
+      "input_shape": "1x640x640x3",
+      "source": {
+        "name": "RKNN Model Zoo",
+        "url": "https://github.com/airockchip/rknn_model_zoo"
+      },
+      "file": {
+        "basename": "yolov8s-seg_rk3588_int8.rknn",
+        "sha256": "f0af5adfd87e62b7dac6db891a9f9e71587846f9f25d4a94e22940452726d2bc",
+        "size_bytes": 13311017
+      },
+      "board": {
+        "soc": "rk3588",
+        "board_label": "rk3588",
+        "os": "Ubuntu 22.04.5 LTS",
+        "kernel": "6.1.118",
+        "soc_model": "Rockchip RK3588",
+        "driver": "0.9.8",
+        "runtime": "2.3.2 (429f97ae6b@2025-04-09T09:09:27)",
+        "loadavg": [
+          18.01,
+          17.23,
+          16.82
+        ]
+      },
+      "measured_at": "2026-11-06T21:16:38.154309+00:00",
+      "protocol": {
+        "warmup": 10,
+        "runs": 50,
+        "timer": "PERF_RUN",
+        "rss_cycles": 3,
+        "sessions": 3,
+        "aggregation": "median of independent sessions, each in its own process (single sessions on a busy board can sit ~15% off the sustained state)",
+        "priming": "one sacrificial load+5-run cycle in a separate process before measuring (first-context effect: the first RKNN process after idle measures ~15% slower on RK3588/rknpu_ondemand, even after warmup)",
+        "core_mask": "default"
+      },
+      "latency_ms": {
+        "p50": 43.836,
+        "p95": 45.439,
+        "mean": 44.188,
+        "min": 42.804,
+        "max": 59.794
+      },
+      "fps_p50": 22.8,
+      "verdict": "NPU_ONLY",
+      "fallback_ops": [],
+      "fallback_share_pct": 0.0,
+      "memory": {
+        "file_size_bytes": 13311017,
+        "rss_delta_mb": 47.1,
+        "perf_rw_kb_per_frame": 83796
+      },
+      "notes": [
+        "aggregated from 3 independent sessions; session p50 (ms): [43.731, 43.836, 44.063]",
+        "Converted on x86_64 with rknn-toolkit2 2.3.2; official yolov8_seg INT8 recipe, mean 0 / std 255.",
+        "Calibration: official RKNN Model Zoo datasets/COCO/coco_subset_20.txt, 20 COCO val2017 images, filenames and order verified; no accuracy claim."
       ]
     }
   ]

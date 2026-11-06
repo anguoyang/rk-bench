@@ -16,12 +16,16 @@ Board: rk3588 (Rockchip RK3588) · runtime 2.3.2 · driver 0.9.8
 | YOLOv8n | detect | 1x640x640x3 | FP | 37.5 | 38.58 | 26.7 | NPU_ONLY | 0% | 47.4 | 7.25 |
 | YOLOv5s ReLU | detect | 1x640x640x3 | FP | 37.8 | 38.58 | 26.5 | NPU_ONLY | 0% | 52.8 | 15.56 |
 | YOLO11n | detect | 1x640x640x3 | FP | 43.67 | 49.79 | 22.9 | NPU_ONLY | 0% | 46.1 | 6.71 |
+| PP-YOLOE-s | detect | 1x640x640x3 | FP | 67.71 | 70.44 | 14.8 | NPU_ONLY | 0% | 91.6 | 17.08 |
 | YOLOv10s | detect | 1x640x640x3 | FP | 88.09 | 90.49 | 11.4 | NPU_ONLY | 0% | 78.3 | 15.81 |
 | YOLOv8n-obb | detect-obb | 1x640x640x3 | FP | 37.65 | 38.26 | 26.6 | NPU_ONLY | 0% | 44.8 | 7.3 |
 | RetinaFace Mobile320 | face-detect | 1x320x320x3 | FP | 6.43 | 6.68 | 155.6 | MIXED | 4.05% | 12.9 | 1.49 |
 | PP-OCRv4-Det | ocr-detect | 1x480x480x3 | FP | 47.86 | 49.99 | 20.9 | NPU_ONLY | 0% | 38 | 3.75 |
 | PP-OCRv4-Rec | ocr-recognize | 1x48x320x3 | FP | 22.68 | 26.45 | 44.1 | MIXED | 2.58% | 23.3 | 6.74 |
+| YOLOv8n-pose | pose | 1x640x640x3 | INT8 | 31.64 | 32.71 | 31.6 | NPU_ONLY | 0% | 28.4 | 4.98 |
 | YOLOv8n-pose | pose | 1x640x640x3 | FP | 49.73 | 51.27 | 20.1 | NPU_ONLY | 0% | 47.6 | 8.17 |
+| YOLOv8s-seg | segment | 1x640x640x3 | INT8 | 43.84 | 45.44 | 22.8 | NPU_ONLY | 0% | 47.1 | 12.69 |
+| YOLOv8n-seg | segment | 1x640x640x3 | FP | 46.74 | 57.36 | 21.4 | NPU_ONLY | 0% | 50.7 | 7.92 |
 | YOLOv8s-seg | segment | 1x640x640x3 | FP | 104.53 | 113.08 | 9.6 | NPU_ONLY | 0% | 112.1 | 24.46 |
 
 Verdicts: `NPU_ONLY` means no operator fell back to the CPU (input/output
