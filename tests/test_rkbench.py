@@ -11,6 +11,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "src"))
 from rkbench.bench import aggregate_reports, benchmark_model  # noqa: E402
 from rkbench.cli import main  # noqa: E402
 from rkbench.leaderboard import (LeaderboardError, add_entry,  # noqa: E402
+                                 TABLE_HEADERS_ZH,
                                  empty_leaderboard, entry_from_report,
                                  render_table, update_readme)
 from rkbench.perf_parse import judge, latency_stats, parse_perf_detail  # noqa: E402
@@ -205,6 +206,44 @@ class AggregateTests(unittest.TestCase):
 
 
 class LeaderboardTests(unittest.TestCase):
+    def test_chinese_headers_preserve_english_data_rows(self):
+        data = empty_leaderboard(sample_report()["board"])
+        add_entry(data, entry_from_report(sample_report()))
+        int8 = sample_report()
+        int8["model"]["precision"] = "INT8"
+        int8["latency_ms"].update(p50=4.145, p95=4.652)
+        int8["verdict"] = "MIXED"
+        int8["fallback_share_pct"] = 1.104
+        add_entry(data, entry_from_report(int8))
+        en = render_table(data).splitlines()
+        zh = render_table(data, TABLE_HEADERS_ZH).splitlines()
+        self.assertIn("| 模型 | 任务 | 输入 | 精度 |", zh[2])
+        self.assertIn("| 判定 | CPU 回退 | RSS Δ (MB) | 模型大小 (MB) |", zh[2])
+        self.assertEqual(en[:2], zh[:2])
+        self.assertEqual(en[3:], zh[3:])
+        self.assertEqual(len(zh[4:]), 2)
+
+    def test_chinese_readme_refresh_is_idempotent(self):
+        data = empty_leaderboard(sample_report()["board"])
+        entry = entry_from_report(sample_report())
+        add_entry(data, entry)
+        with tempfile.TemporaryDirectory() as tmp:
+            readme = Path(tmp) / "README.zh-CN.md"
+            readme.write_text("简介\n<!-- LEADERBOARD:BEGIN -->\n旧表\n"
+                              "<!-- LEADERBOARD:END -->\n测量口径\n", encoding="utf-8")
+            update_readme(readme, data, TABLE_HEADERS_ZH)
+            entry["latency_ms"]["p50"] = 39.0
+            update_readme(readme, data, TABLE_HEADERS_ZH)
+            refreshed = readme.read_text(encoding="utf-8")
+            update_readme(readme, data, TABLE_HEADERS_ZH)
+            self.assertEqual(readme.read_text(encoding="utf-8"), refreshed)
+            self.assertEqual(refreshed, "简介\n<!-- LEADERBOARD:BEGIN -->\n"
+                             + render_table(data, TABLE_HEADERS_ZH)
+                             + "<!-- LEADERBOARD:END -->\n测量口径\n")
+            self.assertEqual(refreshed.count("<!-- LEADERBOARD:BEGIN -->"), 1)
+            self.assertEqual(refreshed.count("<!-- LEADERBOARD:END -->"), 1)
+            self.assertEqual(refreshed.count("| YOLOv8n |"), 1)
+
     def test_soc_model_sanitized(self):
         report = sample_report()
         report["board"]["soc_model"] = "Some OEM, A588"
@@ -256,6 +295,32 @@ class LeaderboardTests(unittest.TestCase):
 
 
 class CliTests(unittest.TestCase):
+    def test_table_refreshes_both_readmes_and_full_table(self):
+        data = empty_leaderboard(sample_report()["board"])
+        add_entry(data, entry_from_report(sample_report()))
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp = Path(tmp)
+            source = tmp / "leaderboard.json"
+            source.write_text(json.dumps(data), encoding="utf-8")
+            en, zh = tmp / "README.md", tmp / "README.zh-CN.md"
+            out = tmp / "LEADERBOARD.md"
+            for path in (en, zh):
+                path.write_text("<!-- LEADERBOARD:BEGIN -->\nold\n"
+                                "<!-- LEADERBOARD:END -->\n", encoding="utf-8")
+            argv = ["table", "--from", str(source), "--out", str(out),
+                    "--readme", str(en), "--readme-zh", str(zh)]
+            self.assertEqual(main(argv), 0)
+            en_text, zh_text = en.read_text(), zh.read_text(encoding="utf-8")
+            self.assertIn("| Model | Task |", en_text)
+            self.assertIn("| 模型 | 任务 |", zh_text)
+            rows = lambda text: [line for line in text.splitlines()
+                                 if line.startswith("| YOLOv8n |")]
+            self.assertEqual(len(rows(en_text)), 1)
+            self.assertEqual(rows(en_text), rows(zh_text))
+            self.assertEqual(rows(en_text), rows(out.read_text()))
+            self.assertEqual(main(argv), 0)
+            self.assertEqual(zh.read_text(encoding="utf-8"), zh_text)
+
     def test_prime_child_without_runtime(self):
         with tempfile.TemporaryDirectory() as tmp:
             model = Path(tmp) / "x.rknn"

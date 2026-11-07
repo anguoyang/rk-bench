@@ -10,7 +10,7 @@ from .bench import (PROTOCOL, aggregate_reports, benchmark_model,
                     measure_rss_delta, prime, prime_child, rss_probe_child,
                     spawn_child)
 from .rknn_runtime import CORE_MASK_VALUES
-from .leaderboard import (LeaderboardError, add_entry, empty_leaderboard,
+from .leaderboard import (LeaderboardError, TABLE_HEADERS_ZH, add_entry, empty_leaderboard,
                           entry_from_report, load_leaderboard,
                           render_leaderboard_md, save_leaderboard,
                           update_readme)
@@ -62,6 +62,8 @@ def main(argv=None) -> int:
     table_p.add_argument("--from", dest="source", required=True)
     table_p.add_argument("--out", default="", help="write docs/LEADERBOARD.md here")
     table_p.add_argument("--readme", default="", help="also refresh this README")
+    table_p.add_argument("--readme-zh", default="",
+                         help="also refresh this README with Chinese table headers")
 
     probe_p = sub.add_parser("_rss_probe", help=argparse.SUPPRESS)
     probe_p.add_argument("model")
@@ -240,9 +242,12 @@ def _cmd_table(args) -> int:
         if args.readme:
             update_readme(Path(args.readme), data)
             print("Updated %s" % args.readme)
+        if args.readme_zh:
+            update_readme(Path(args.readme_zh), data, TABLE_HEADERS_ZH)
+            print("Updated %s" % args.readme_zh)
     except LeaderboardError as error:
         print("rkbench: %s" % error, file=sys.stderr)
         return 1
-    if not args.out and not args.readme:
+    if not args.out and not args.readme and not args.readme_zh:
         print(render_leaderboard_md(data))
     return 0

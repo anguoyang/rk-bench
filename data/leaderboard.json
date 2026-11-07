@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "generated_at": "2026-11-06T21:17:36.316396+00:00",
+  "generated_at": "2026-11-07T23:31:44.001377+00:00",
   "board": {
     "soc": "rk3588",
     "board_label": "rk3588",
@@ -1174,6 +1174,274 @@
       "notes": [
         "aggregated from 3 independent sessions; session p50 (ms): [43.731, 43.836, 44.063]",
         "Converted on x86_64 with rknn-toolkit2 2.3.2; official yolov8_seg INT8 recipe, mean 0 / std 255.",
+        "Calibration: official RKNN Model Zoo datasets/COCO/coco_subset_20.txt, 20 COCO val2017 images, filenames and order verified; no accuracy claim."
+      ]
+    },
+    {
+      "model": "MobileNetV2",
+      "task": "classify",
+      "variant": "",
+      "precision": "INT8",
+      "input_shape": "1x224x224x3",
+      "source": {
+        "name": "RKNN Model Zoo",
+        "url": "https://github.com/airockchip/rknn_model_zoo"
+      },
+      "file": {
+        "basename": "mobilenetv2_rk3588_int8.rknn",
+        "sha256": "7e0f67334e13c1ca5ed4553c3cabde52fe4e4c9842634e42b53cf2e5d880905b",
+        "size_bytes": 4166411
+      },
+      "board": {
+        "soc": "rk3588",
+        "board_label": "rk3588",
+        "os": "Ubuntu 22.04.5 LTS",
+        "kernel": "6.1.118",
+        "soc_model": "Rockchip RK3588",
+        "driver": "0.9.8",
+        "runtime": "2.3.2 (429f97ae6b@2025-04-09T09:09:27)",
+        "loadavg": [
+          21.3,
+          21.54,
+          21.18
+        ]
+      },
+      "measured_at": "2026-11-07T23:26:41.163236+00:00",
+      "protocol": {
+        "warmup": 10,
+        "runs": 50,
+        "timer": "PERF_RUN",
+        "rss_cycles": 3,
+        "sessions": 3,
+        "aggregation": "median of independent sessions, each in its own process (single sessions on a busy board can sit ~15% off the sustained state)",
+        "priming": "one sacrificial load+5-run cycle in a separate process before measuring (first-context effect: the first RKNN process after idle measures ~15% slower on RK3588/rknpu_ondemand, even after warmup)",
+        "core_mask": "default"
+      },
+      "latency_ms": {
+        "p50": 4.145,
+        "p95": 4.652,
+        "mean": 4.268,
+        "min": 3.919,
+        "max": 8.372
+      },
+      "fps_p50": 241.3,
+      "verdict": "MIXED",
+      "fallback_ops": [
+        {
+          "op_type": "Reshape",
+          "time_us": 31,
+          "full_name": "Reshape:output_mm_tp_rs"
+        }
+      ],
+      "fallback_share_pct": 1.104,
+      "memory": {
+        "file_size_bytes": 4166411,
+        "rss_delta_mb": 16.2,
+        "perf_rw_kb_per_frame": 10534
+      },
+      "notes": [
+        "aggregated from 3 independent sessions; session p50 (ms): [4.136, 4.145, 4.198]",
+        "session verdicts differed: ['MIXED', 'NPU_ONLY', 'MIXED']; the worst is reported",
+        "Converted on x86_64 with rknn-toolkit2 2.3.2; zoo mobilenet recipe, ImageNet mean/std in 255 space.",
+        "Calibration: official RKNN Model Zoo datasets/COCO/coco_subset_20.txt, 20 COCO val2017 images, filenames and order verified; no accuracy claim."
+      ]
+    },
+    {
+      "model": "ResNet50-v2",
+      "task": "classify",
+      "variant": "",
+      "precision": "INT8",
+      "input_shape": "1x224x224x3",
+      "source": {
+        "name": "RKNN Model Zoo",
+        "url": "https://github.com/airockchip/rknn_model_zoo"
+      },
+      "file": {
+        "basename": "resnet50-v2_rk3588_int8.rknn",
+        "sha256": "1b75729121ea6bf5b6a760d852aa67271db33d50cd5bade560d2881abe21da1a",
+        "size_bytes": 26695768
+      },
+      "board": {
+        "soc": "rk3588",
+        "board_label": "rk3588",
+        "os": "Ubuntu 22.04.5 LTS",
+        "kernel": "6.1.118",
+        "soc_model": "Rockchip RK3588",
+        "driver": "0.9.8",
+        "runtime": "2.3.2 (429f97ae6b@2025-04-09T09:09:27)",
+        "loadavg": [
+          21.55,
+          21.59,
+          21.2
+        ]
+      },
+      "measured_at": "2026-11-07T23:26:50.642171+00:00",
+      "protocol": {
+        "warmup": 10,
+        "runs": 50,
+        "timer": "PERF_RUN",
+        "rss_cycles": 3,
+        "sessions": 3,
+        "aggregation": "median of independent sessions, each in its own process (single sessions on a busy board can sit ~15% off the sustained state)",
+        "priming": "one sacrificial load+5-run cycle in a separate process before measuring (first-context effect: the first RKNN process after idle measures ~15% slower on RK3588/rknpu_ondemand, even after warmup)",
+        "core_mask": "default"
+      },
+      "latency_ms": {
+        "p50": 13.542,
+        "p95": 15.259,
+        "mean": 13.844,
+        "min": 12.789,
+        "max": 23.454
+      },
+      "fps_p50": 73.8,
+      "verdict": "MIXED",
+      "fallback_ops": [
+        {
+          "op_type": "Reshape",
+          "time_us": 68,
+          "full_name": "Reshape:resnetv24_dense0_fwd_mm_tp_rs"
+        }
+      ],
+      "fallback_share_pct": 0.632,
+      "memory": {
+        "file_size_bytes": 26695768,
+        "rss_delta_mb": 60.2,
+        "perf_rw_kb_per_frame": null
+      },
+      "notes": [
+        "aggregated from 3 independent sessions; session p50 (ms): [16.944, 13.469, 13.542]",
+        "session verdicts differed: ['MIXED', 'NPU_ONLY', 'NPU_ONLY']; the worst is reported",
+        "Converted on x86_64 with rknn-toolkit2 2.3.2; zoo resnet recipe, ImageNet mean/std in 255 space.",
+        "Calibration: official RKNN Model Zoo datasets/COCO/coco_subset_20.txt, 20 COCO val2017 images, filenames and order verified; no accuracy claim."
+      ]
+    },
+    {
+      "model": "PP-OCRv4-Det",
+      "task": "ocr-detect",
+      "variant": "",
+      "precision": "INT8",
+      "input_shape": "1x480x480x3",
+      "source": {
+        "name": "RKNN Model Zoo",
+        "url": "https://github.com/airockchip/rknn_model_zoo"
+      },
+      "file": {
+        "basename": "ppocrv4_det_rk3588_int8.rknn",
+        "sha256": "69a55f2f2dab08902f3fc3d330806cf8a9febd8083054b7177377b52b13841f6",
+        "size_bytes": 2631893
+      },
+      "board": {
+        "soc": "rk3588",
+        "board_label": "rk3588",
+        "os": "Ubuntu 22.04.5 LTS",
+        "kernel": "6.1.118",
+        "soc_model": "Rockchip RK3588",
+        "driver": "0.9.8",
+        "runtime": "2.3.2 (429f97ae6b@2025-04-09T09:09:27)",
+        "loadavg": [
+          22.4,
+          21.77,
+          21.26
+        ]
+      },
+      "measured_at": "2026-11-07T23:26:59.775710+00:00",
+      "protocol": {
+        "warmup": 10,
+        "runs": 50,
+        "timer": "PERF_RUN",
+        "rss_cycles": 3,
+        "sessions": 3,
+        "aggregation": "median of independent sessions, each in its own process (single sessions on a busy board can sit ~15% off the sustained state)",
+        "priming": "one sacrificial load+5-run cycle in a separate process before measuring (first-context effect: the first RKNN process after idle measures ~15% slower on RK3588/rknpu_ondemand, even after warmup)",
+        "core_mask": "default"
+      },
+      "latency_ms": {
+        "p50": 31.386,
+        "p95": 39.99,
+        "mean": 33.864,
+        "min": 28.882,
+        "max": 42.425
+      },
+      "fps_p50": 31.9,
+      "verdict": "NPU_ONLY",
+      "fallback_ops": [],
+      "fallback_share_pct": 0.0,
+      "memory": {
+        "file_size_bytes": 2631893,
+        "rss_delta_mb": 54.1,
+        "perf_rw_kb_per_frame": 64350
+      },
+      "notes": [
+        "aggregated from 3 independent sessions; session p50 (ms): [38.27, 31.386, 30.046]",
+        "Converted on x86_64 with rknn-toolkit2 2.3.2; zoo ppocr_det recipe (INT8 by default), mean 123.675/116.28/103.53, std 58.395/57.12/57.375.",
+        "Calibration: official RKNN Model Zoo datasets/COCO/coco_subset_20.txt, 20 COCO val2017 images, filenames and order verified; no accuracy claim."
+      ]
+    },
+    {
+      "model": "PP-OCRv4-Rec",
+      "task": "ocr-recognize",
+      "variant": "",
+      "precision": "INT8",
+      "input_shape": "1x48x320x3",
+      "source": {
+        "name": "RKNN Model Zoo",
+        "url": "https://github.com/airockchip/rknn_model_zoo"
+      },
+      "file": {
+        "basename": "ppocrv4_rec_rk3588_int8.rknn",
+        "sha256": "131a7059654e9de4d6ef8f450cf52eccecf4f91c137600b5fe89441cb0b85633",
+        "size_bytes": 4381395
+      },
+      "board": {
+        "soc": "rk3588",
+        "board_label": "rk3588",
+        "os": "Ubuntu 22.04.5 LTS",
+        "kernel": "6.1.118",
+        "soc_model": "Rockchip RK3588",
+        "driver": "0.9.8",
+        "runtime": "2.3.2 (429f97ae6b@2025-04-09T09:09:27)",
+        "loadavg": [
+          21.96,
+          21.69,
+          21.24
+        ]
+      },
+      "measured_at": "2026-11-07T23:27:10.129244+00:00",
+      "protocol": {
+        "warmup": 10,
+        "runs": 50,
+        "timer": "PERF_RUN",
+        "rss_cycles": 3,
+        "sessions": 3,
+        "aggregation": "median of independent sessions, each in its own process (single sessions on a busy board can sit ~15% off the sustained state)",
+        "priming": "one sacrificial load+5-run cycle in a separate process before measuring (first-context effect: the first RKNN process after idle measures ~15% slower on RK3588/rknpu_ondemand, even after warmup)",
+        "core_mask": "default"
+      },
+      "latency_ms": {
+        "p50": 14.163,
+        "p95": 16.96,
+        "mean": 14.509,
+        "min": 13.396,
+        "max": 25.671
+      },
+      "fps_p50": 70.6,
+      "verdict": "MIXED",
+      "fallback_ops": [
+        {
+          "op_type": "Reshape",
+          "time_us": 301,
+          "full_name": "Reshape:softmax_11.tmp_0-rs"
+        }
+      ],
+      "fallback_share_pct": 2.613,
+      "memory": {
+        "file_size_bytes": 4381395,
+        "rss_delta_mb": 18.2,
+        "perf_rw_kb_per_frame": 20702
+      },
+      "notes": [
+        "aggregated from 3 independent sessions; session p50 (ms): [13.985, 14.163, 14.337]",
+        "Converted on x86_64 with rknn-toolkit2 2.3.2; zoo ppocr_rec recipe ships FP only (no mean/std); this INT8 build keeps the same no-normalization config and is not an official zoo INT8 recipe.",
         "Calibration: official RKNN Model Zoo datasets/COCO/coco_subset_20.txt, 20 COCO val2017 images, filenames and order verified; no accuracy claim."
       ]
     }

@@ -1,5 +1,24 @@
 # Changelog
 
+## v0.5.0 — 2026-11-07
+
+- Leaderboard grows from 19 to 23 rows on RK3588 with four INT8 twins.
+  p50 speedups are FP p50 / INT8 p50, calculated from the full-precision
+  values in `data/leaderboard.json`:
+  - MobileNetV2: 8.630 / 4.145 ms = **2.082×**, `MIXED`.
+  - ResNet50-v2: 25.404 / 13.542 ms = **1.876×**, `MIXED`.
+  - PP-OCRv4-Det: 47.864 / 31.386 ms = **1.525×**, `NPU_ONLY`.
+  - PP-OCRv4-Rec: 22.679 / 14.163 ms = **1.601×**, `MIXED`.
+- Models come from RKNN Model Zoo and use its 20-image COCO calibration
+  subset with rknn-toolkit2 2.3.2. PP-OCRv4-Rec INT8 retains the FP recipe's
+  no-normalization config; it is not an official Zoo INT8 recipe. Original
+  report notes and hashes are preserved; no accuracy claim is made.
+- Chinese README now includes a generated leaderboard with Chinese headers.
+  `rkbench table --readme README.md --readme-zh README.zh-CN.md` refreshes
+  both README blocks using the same renderer and data. Closes #3.
+- The priming + three-session protocol, median p50/p95 aggregation,
+  worst-session fallback verdict, and existing 19 entries are unchanged.
+
 ## v0.4.0 — 2026-11-06
 
 - Leaderboard grows from 15 to 19 rows on RK3588: YOLOv8n-seg FP,

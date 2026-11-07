@@ -120,10 +120,18 @@ def _fmt(value, digits=1):
     return str(value)
 
 
-def render_table(data: dict) -> str:
+TABLE_HEADERS_EN = ("Model", "Task", "Input", "Precision", "p50 (ms)",
+                    "p95 (ms)", "FPS (p50)", "Verdict", "CPU fallback",
+                    "RSS Δ (MB)", "Model size (MB)")
+TABLE_HEADERS_ZH = ("模型", "任务", "输入", "精度", "p50 (ms)",
+                    "p95 (ms)", "FPS (p50)", "判定", "CPU 回退",
+                    "RSS Δ (MB)", "模型大小 (MB)")
+
+
+def render_table(data: dict, headers=TABLE_HEADERS_EN) -> str:
     board = data.get("board") or {}
     lines = [
-        "| Model | Task | Input | Precision | p50 (ms) | p95 (ms) | FPS (p50) | Verdict | CPU fallback | RSS Δ (MB) | Model size (MB) |",
+        "| " + " | ".join(headers) + " |",
         "| --- | --- | --- | --- | ---: | ---: | ---: | --- | ---: | ---: | ---: |",
     ]
     for e in sorted_entries(data):
@@ -180,12 +188,12 @@ README_BEGIN = "<!-- LEADERBOARD:BEGIN -->"
 README_END = "<!-- LEADERBOARD:END -->"
 
 
-def update_readme(readme_path: Path, data: dict) -> None:
+def update_readme(readme_path: Path, data: dict, headers=TABLE_HEADERS_EN) -> None:
     text = readme_path.read_text(encoding="utf-8")
     if README_BEGIN not in text or README_END not in text:
         raise LeaderboardError(
             "README %s lacks the %s / %s markers" % (readme_path, README_BEGIN, README_END))
     before, rest = text.split(README_BEGIN, 1)
     _, after = rest.split(README_END, 1)
-    block = README_BEGIN + "\n" + render_table(data).rstrip() + "\n" + README_END
+    block = README_BEGIN + "\n" + render_table(data, headers).rstrip() + "\n" + README_END
     readme_path.write_text(before + block + after, encoding="utf-8")

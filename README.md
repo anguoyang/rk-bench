@@ -26,7 +26,9 @@ Board: rk3588 (Rockchip RK3588) · runtime 2.3.2 · driver 0.9.8
 
 | Model | Task | Input | Precision | p50 (ms) | p95 (ms) | FPS (p50) | Verdict | CPU fallback | RSS Δ (MB) | Model size (MB) |
 | --- | --- | --- | --- | ---: | ---: | ---: | --- | ---: | ---: | ---: |
+| MobileNetV2 | classify | 1x224x224x3 | INT8 | 4.14 | 4.65 | 241.3 | MIXED | 1.1% | 16.2 | 3.97 |
 | MobileNetV2 | classify | 1x224x224x3 | FP | 8.63 | 8.89 | 115.9 | NPU_ONLY | 0% | 23.9 | 7.31 |
+| ResNet50-v2 | classify | 1x224x224x3 | INT8 | 13.54 | 15.26 | 73.8 | MIXED | 0.63% | 60.2 | 25.46 |
 | ResNet50-v2 | classify | 1x224x224x3 | FP | 25.4 | 29.34 | 39.4 | NPU_ONLY | 0% | 110.1 | 49.92 |
 | YOLOv8n | detect | 1x640x640x3 | INT8 | 19.17 | 19.76 | 52.2 | NPU_ONLY | 0% | 22.8 | 4.13 |
 | YOLOv5s ReLU | detect | 1x640x640x3 | INT8 | 20.52 | 22.3 | 48.7 | NPU_ONLY | 0% | 30.8 | 8 |
@@ -38,7 +40,9 @@ Board: rk3588 (Rockchip RK3588) · runtime 2.3.2 · driver 0.9.8
 | YOLOv10s | detect | 1x640x640x3 | FP | 88.09 | 90.49 | 11.4 | NPU_ONLY | 0% | 78.3 | 15.81 |
 | YOLOv8n-obb | detect-obb | 1x640x640x3 | FP | 37.65 | 38.26 | 26.6 | NPU_ONLY | 0% | 44.8 | 7.3 |
 | RetinaFace Mobile320 | face-detect | 1x320x320x3 | FP | 6.43 | 6.68 | 155.6 | MIXED | 4.05% | 12.9 | 1.49 |
+| PP-OCRv4-Det | ocr-detect | 1x480x480x3 | INT8 | 31.39 | 39.99 | 31.9 | NPU_ONLY | 0% | 54.1 | 2.51 |
 | PP-OCRv4-Det | ocr-detect | 1x480x480x3 | FP | 47.86 | 49.99 | 20.9 | NPU_ONLY | 0% | 38 | 3.75 |
+| PP-OCRv4-Rec | ocr-recognize | 1x48x320x3 | INT8 | 14.16 | 16.96 | 70.6 | MIXED | 2.61% | 18.2 | 4.18 |
 | PP-OCRv4-Rec | ocr-recognize | 1x48x320x3 | FP | 22.68 | 26.45 | 44.1 | MIXED | 2.58% | 23.3 | 6.74 |
 | YOLOv8n-pose | pose | 1x640x640x3 | INT8 | 31.64 | 32.71 | 31.6 | NPU_ONLY | 0% | 28.4 | 4.98 |
 | YOLOv8n-pose | pose | 1x640x640x3 | FP | 49.73 | 51.27 | 20.1 | NPU_ONLY | 0% | 47.6 | 8.17 |
@@ -101,7 +105,7 @@ PYTHONPATH=src python3 -m rkbench add report.json --into data/leaderboard.json
 
 # regenerate the published tables from the data
 PYTHONPATH=src python3 -m rkbench table --from data/leaderboard.json \
-  --out docs/LEADERBOARD.md --readme README.md
+  --out docs/LEADERBOARD.md --readme README.md --readme-zh README.zh-CN.md
 
 PYTHONPATH=src python3 -m rkbench --version
 ```
